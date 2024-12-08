@@ -24,6 +24,7 @@ jobs:
         run: |
           mkdir -p "$HOME/.ssh/"
           echo "$SSH_PRIVATE_KEY" > "$HOME/.ssh/key"
+          ssh-keyscan -H $SSH_HOST > $HOME/.ssh/known_hosts
           sudo chmod 600 "$HOME/.ssh/key" 
       - name: Deploy Traefik
         env:
