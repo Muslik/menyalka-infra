@@ -1,0 +1,59 @@
+name: Deploy traefik
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker CLI
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+
+      - name: Create SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        run: |
+          mkdir -p "$HOME/.ssh/"
+          echo "$SSH_PRIVATE_KEY" > "$HOME/.ssh/key"
+          sudo chmod 600 "$HOME/.ssh/key" 
+      - name: Deploy Traefik
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
+          HTTP_BASIC_USER: ${{ secrets.HTTP_BASIC_USER }}
+          HTTP_BASIC_PWD: ${{ secrets.HTTP_BASIC_PWD }}
+          DOMAINNAME: ${{ secrets.DOMAINNAME }}
+          TRAEFIK_DIR: ${{ secrets.TRAEFIK_DIR }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          # Copy docker-compose.yml to the server
+          scp docker-compose.yml $SSH_USER@$SSH_HOST:/home/$SSH_USER/traefik/
+
+          # Log in to the server and deploy the stack
+          ssh $SSH_USER@$SSH_HOST << EOF
+            export EMAIL=$EMAIL
+            export HTTP_BASIC_USER=$HTTP_BASIC_USER
+            export HTTP_BASIC_PWD=$HTTP_BASIC_PWD
+            export DOMAINNAME=$DOMAINNAME
+            export TRAEFIK_DIR=$TRAEFIK_DIR
+            
+            # Create acme.json if it doesn't exist
+            mkdir -p $TRAEFIK_DIR
+            touch $TRAEFIK_DIR/acme.json
+            chmod 600 $TRAEFIK_DIR/acme.json
+
+            # Deploy the stack with updated configurations
+            docker stack deploy -c /home/$SSH_USER/traefik/docker-compose.yml traefik
+
+            # Optional: Prune old containers
+            docker system prune -f
+          EOF

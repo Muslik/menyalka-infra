@@ -1,0 +1,53 @@
+services:
+  traefik:
+    image: traefik:v3.2.1
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-public"
+      - "--providers.docker.swarmmode=true"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--accesslog"
+      - "--api"
+      - --certificatesresolvers.letsencryptresolver.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencryptresolver.acme.storage=/acme.json
+      - --certificatesresolvers.letsencryptresolver.acme.tlschallenge=true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${TRAEFIK_DIR}/acme.json:/acme.json
+    labels:
+      - traefik.enable=true
+
+      - traefik.http.middlewares.admin.basicauth.users=${HTTP_BASIC_USER}:${HTTP_BASIC_PWD}
+
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.rule=Host(`traefik.${DOMAINNAME}`)
+      - traefik.http.routers.traefik.service=api@internal
+      - traefik.http.routers.traefik.middlewares=admin
+      - traefik.http.routers.traefik.tls.certresolver=letsencryptresolver
+    networks:
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  traefik-public:
+    external: true
