@@ -37,8 +37,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh $SSH_USER@$SSH_HOST "mkdir -p /home/$SSH_USER/traefik/"
-          scp -r traefik/ $SSH_USER@$SSH_HOST:/home/$SSH_USER/
+          ssh "$SSH_USER@$SSH_HOST" "mkdir -p /home/$SSH_USER/traefik/"
+          scp -r traefik/ "$SSH_USER@$SSH_HOST:/home/$SSH_USER/"
 
           ssh $SSH_USER@$SSH_HOST << EOF
             export EMAIL=$EMAIL
@@ -53,7 +53,7 @@ jobs:
             chmod 600 $TRAEFIK_DIR/acme.json
 
             # Deploy the stack with updated configurations
-            docker stack deploy -c /home/$SSH_USER/traefik/docker-compose.yml traefik
+            docker stack deploy -c "/home/$SSH_USER/traefik/docker-compose.yml" traefik
 
             # Optional: Prune old containers
             docker system prune -f
