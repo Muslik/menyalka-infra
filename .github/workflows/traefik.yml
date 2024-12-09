@@ -13,19 +13,20 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Log in to Docker Hub
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Create SSH key
         env:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
           mkdir -p "$HOME/.ssh/"
           echo "$SSH_PRIVATE_KEY" > "$HOME/.ssh/key"
           ssh-keyscan -H "$SSH_HOST" > "$HOME/.ssh/known_hosts"
-          sudo chmod 600 "$HOME/.ssh/key" 
+          chmod 600 "$HOME/.ssh/key" 
       - name: Deploy Traefik
         env:
           EMAIL: ${{ secrets.EMAIL }}
@@ -39,7 +40,6 @@ jobs:
           ssh $SSH_USER@$SSH_HOST "mkdir -p /home/$SSH_USER/traefik/"
           scp -r traefik/ $SSH_USER@$SSH_HOST:/home/$SSH_USER/
 
-          # Log in to the server and deploy the stack
           ssh $SSH_USER@$SSH_HOST << EOF
             export EMAIL=$EMAIL
             export HTTP_BASIC_USER=$HTTP_BASIC_USER
