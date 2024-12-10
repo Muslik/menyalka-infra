@@ -1,0 +1,20 @@
+name: SSH Setup
+
+on:
+  workflow_call:
+jobs:
+  setup-ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure ssh-agent is available
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          command -v ssh-agent >/dev/null || (apk add --update openssh)
+          eval $(ssh-agent -s)
+          echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan "$SSH_HOST" > "~/.ssh/known_hosts"
+          chmod 644 ~/.ssh/known_hosts
