@@ -2,22 +2,26 @@ name: SSH Setup
 
 on:
   workflow_call:
+    inputs:
+      ssh_private_key:
+        required: true
+        type: string
+      ssh_host:
+        required: true
+        type: string
 jobs:
   setup-ssh:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Ensure ssh-agent is available
         env:
-          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }} 
+          SSH_HOST: ${{ inputs.ssh_host }}
         run: |
-          command -v ssh-agent >/dev/null || (apk add --update openssh)
+          command -v ssh-agent >/dev/null
           eval $(ssh-agent -s)
           echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keyscan "$SSH_HOST" > "~/.ssh/known_hosts"
+          ssh-keyscan "$SSH_HOST" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts

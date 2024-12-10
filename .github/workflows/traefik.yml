@@ -20,6 +20,9 @@ jobs:
 
       - name: Setup SSH
         uses: ./.github/workflows/ssh-setup.yml
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_host: ${{ secrets.SSH_HOST }}
 
       - name: Deploy Traefik
         env:
@@ -34,7 +37,7 @@ jobs:
         run: |
           scp -rp traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
-          ssh -i $HOME/.ssh/key $SSH_USER@$SSH_HOST << EOF
+          ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
             export EMAIL=$EMAIL
             export HTTP_BASIC_USER=$HTTP_BASIC_USER
             export HTTP_BASIC_PWD=$HTTP_BASIC_PWD
