@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Ensure ssh-agent is available
         env:
-          SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }} 
+          SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
           SSH_HOST: ${{ inputs.ssh_host }}
         run: |
           command -v ssh-agent >/dev/null
