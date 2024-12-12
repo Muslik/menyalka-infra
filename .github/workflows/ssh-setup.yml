@@ -2,13 +2,7 @@ name: SSH Setup
 
 on:
   workflow_call:
-    inputs:
-      ssh_private_key:
-        required: true
-        type: string
-      ssh_host:
-        required: true
-        type: string
+
 jobs:
   setup-ssh:
     runs-on: ubuntu-latest
