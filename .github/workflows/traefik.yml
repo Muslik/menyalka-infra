@@ -33,6 +33,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
+          cat ~/.ssh/known_hosts
+          ls ~/.ssh/
           scp -rp traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
           ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
