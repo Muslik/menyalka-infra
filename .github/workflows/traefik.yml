@@ -4,9 +4,8 @@ on:
 jobs:
   setup-ssh:
     uses: ./.github/workflows/ssh-setup.yml
-    with:
-      ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-      ssh_host: ${{ secrets.SSH_HOST }}
+    secrets: inherit
+
   deploy:
     runs-on: ubuntu-latest
 
