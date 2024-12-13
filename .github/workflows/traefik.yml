@@ -18,19 +18,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Setup SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: |
-          command -v ssh-agent >/dev/null
-          eval $(ssh-agent -s)
-          echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan "$SSH_HOST" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          ssh-add -l
+      # - name: Setup SSH
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     SSH_HOST: ${{ secrets.SSH_HOST }}
+      #   run: |
+      #     command -v ssh-agent >/dev/null
+      #     eval $(ssh-agent -s)
+      #     echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+      #     mkdir -p ~/.ssh
+      #     chmod 700 ~/.ssh
+      #     ssh-keyscan "$SSH_HOST" > ~/.ssh/known_hosts
+      #     chmod 644 ~/.ssh/known_hosts
+      #     ssh-add -l
 
       - name: Deploy Traefik
         env:
@@ -42,8 +42,10 @@ jobs:
           TRAEFIK_DIR: ${{ secrets.TRAEFIK_DIR }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+          chmod +x ./scripts/ssh-setup.sh
+          ./scripts/ssh-setup.sh "$SSH_PRIVATE_KEY" "$SSH_HOST"
           cat ~/.ssh/known_hosts
           ssh-add -l
           chmod -R 755 ./traefik/
