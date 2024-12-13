@@ -42,8 +42,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ls -l ~/.ssh/
-          scp -rp traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
+          ssh-add -l
+          scp -rp ./traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
           ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
             export EMAIL=$EMAIL
