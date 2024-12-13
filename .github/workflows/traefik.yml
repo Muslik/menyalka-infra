@@ -42,8 +42,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          cat ~/.ssh/known_hosts
-          ls ~/.ssh/
+          ls -l ~/.ssh/
           scp -rp traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
           ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
@@ -53,7 +52,6 @@ jobs:
             export DOMAINNAME=$DOMAINNAME
             export TRAEFIK_DIR=$TRAEFIK_DIR
             
-            mkdir -p $TRAEFIK_DIR
             touch $TRAEFIK_DIR/acme.json
             chmod 600 $TRAEFIK_DIR/acme.json
 
