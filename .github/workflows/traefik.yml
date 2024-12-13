@@ -45,11 +45,10 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           chmod +x ./scripts/ssh-setup.sh
-          ./scripts/ssh-setup.sh "$SSH_PRIVATE_KEY" "$SSH_HOST"
+          ./scripts/ssh-setup.sh $SSH_PRIVATE_KEY $SSH_HOST
           cat ~/.ssh/known_hosts
-          ssh-add -l
           chmod -R 755 ./traefik/
-          # scp -rp ./traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
+          scp -rp ./traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
           # ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
           #   export EMAIL=$EMAIL
