@@ -45,17 +45,17 @@ jobs:
           ssh-add -l
           scp -rp ./traefik/ $SSH_USER@$SSH_HOST:$BASE_SERVER_PATH
 
-          ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
-            export EMAIL=$EMAIL
-            export HTTP_BASIC_USER=$HTTP_BASIC_USER
-            export HTTP_BASIC_PWD=$HTTP_BASIC_PWD
-            export DOMAINNAME=$DOMAINNAME
-            export TRAEFIK_DIR=$TRAEFIK_DIR
-            
-            touch $TRAEFIK_DIR/acme.json
-            chmod 600 $TRAEFIK_DIR/acme.json
-
-            docker stack deploy -c "$BASE_SERVER_PATH/traefik/docker-compose.yml" traefik
-
-            docker system prune -f
-          EOF
+          # ssh -i ~/.ssh/key $SSH_USER@$SSH_HOST << EOF
+          #   export EMAIL=$EMAIL
+          #   export HTTP_BASIC_USER=$HTTP_BASIC_USER
+          #   export HTTP_BASIC_PWD=$HTTP_BASIC_PWD
+          #   export DOMAINNAME=$DOMAINNAME
+          #   export TRAEFIK_DIR=$TRAEFIK_DIR
+          #   
+          #   touch $TRAEFIK_DIR/acme.json
+          #   chmod 600 $TRAEFIK_DIR/acme.json
+          #
+          #   docker stack deploy -c "$BASE_SERVER_PATH/traefik/docker-compose.yml" traefik
+          #
+          #   docker system prune -f
+          # EOF
