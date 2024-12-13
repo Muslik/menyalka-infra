@@ -43,6 +43,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
+          echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
           cat ~/.ssh/known_hosts
           ssh-add -l
           chmod -R 755 ./traefik/
